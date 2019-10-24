@@ -10,12 +10,11 @@
 
 using namespace std;
 
-
+mutex thread_lock;
 
 /* thread function to write 1-26 */
 void* WriteThreadA(void* arg){
     fstream *file_input = (fstream*) arg;
-    int counter = 0;
     /* writes numbers 1 - 26 20x to the file*/
     for(int i = 0; i < 20; i++){
         for(int j = 0; j < 26; j++){
@@ -28,17 +27,19 @@ void* WriteThreadA(void* arg){
 
 /* thread function to write A-Z */
 void* WriteThreadB(void* arg){
-    //vector<char> letter; 
-
+    /* writes the alphabets to the file */
+    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    
     fstream *file_input = (fstream*) arg;
     for(int i = 0; i < 20; i++){
         for(int j = 0; j < 26; j++){
-            *file_input << j+1 << " " ;
+            *file_input << alphabet[j] << " " ;
         }
         *file_input << endl;
     }
     pthread_exit(0);
 }
+
 int main(){
     /* thread id */
     pthread_t tid1, tid2;
@@ -49,14 +50,21 @@ int main(){
 
     /* create synch.txt file */
     fstream output_file;
-    output_file.open("synch.txt");
+    output_file.open("synch.txt", fstream::out);
+
     /* pass txt file by creating a thread and waits until the thread has done its work */
+    /* create threadA */
+    thread_lock.lock();
     pthread_create(&tid1, &attr, WriteThreadA, &output_file);
     pthread_join(tid1, NULL);
+    thread_lock.unlock();
 
+    /* create threadB */
+    thread_lock.lock();
     pthread_create(&tid2, &attr, WriteThreadB, &output_file);
     pthread_join(tid2, NULL);
+    thread_lock.unlock();
 
-
+    output_file.close();
     return 0 ;
 }
