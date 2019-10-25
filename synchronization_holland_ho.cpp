@@ -59,16 +59,16 @@ int main(){
 
     /* pass txt file by creating a thread and waits until the thread has done its work */
     /* create threadA */
-    //thread_lock.lock();
+
     pthread_create(&tid1, &attr, WriteThreadA, &output_file);
-    pthread_join(tid1, NULL);
-    //thread_lock.unlock();
+
 
     /* create threadB */
-    //thread_lock.lock();
+
     pthread_create(&tid2, &attr, WriteThreadB, &output_file);
+    pthread_join(tid1, NULL);
     pthread_join(tid2, NULL);
-    //thread_lock.unlock();
+
 
     output_file.close();
     return 0 ;
